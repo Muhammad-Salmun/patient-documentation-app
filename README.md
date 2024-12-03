@@ -14,3 +14,14 @@ This Flutter application is designed to manage patient data for medical professi
 - Dart
 - Firebase (Future integration)
 - Local JSON storage for patient data
+
+## Features in Progress
+- Integration with Firebase backend
+- User authentication
+- Enhanced data validation
+
+## Contributing
+If you want to contribute to the development of this app, feel free to fork the repository, create a feature branch, and submit a pull request.
+
+## License
+This project is licensed under the MIT License.
