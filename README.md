@@ -1,16 +1,16 @@
-# surgery_doc
+# Patient Management App
 
-A new Flutter project.
+This Flutter application is designed to manage patient data for medical professionals, with a focus on tracking the progress of patients through various evaluation stages, including anxiety assessments and quality of life scores.
 
-## Getting Started
+## Features
+- **Patient Management**: Add, view, and edit patient data.
+- **Stage Tracking**: Each patient progresses through different stages of evaluation (Stage 1: Pre-Surgery, Stage 2: Post-Surgery, Stage 3: Quality of Life Assessment).
+- **Anxiety Questionnaire**: Collect and store anxiety scores (before and after surgery).
+- **Editable Patient Data**: Edit patient details (e.g., name, sex, phone number, illness, description).
+- **Navigation**: Navigate between various pages like patient list, details, questionnaires, etc.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Technologies Used
+- Flutter
+- Dart
+- Firebase (Future integration)
+- Local JSON storage for patient data
