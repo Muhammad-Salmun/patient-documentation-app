@@ -1,0 +1,5 @@
+{
+        "java.compile.nullAnalysis.mode": "automatic",
+        "java.configuration.updateBuildConfiguration": "interactive",
+        "cmake.sourceDirectory": "/media/salmun/New Volume1/Phiscape/Flutter Apps/surgery_doc/linux"
+}

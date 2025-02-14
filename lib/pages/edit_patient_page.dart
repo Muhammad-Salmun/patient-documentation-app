@@ -1,97 +1,217 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:surgery_doc/components/textfeild.dart';
 
 class EditPatientPage extends StatefulWidget {
-  final Map<String, dynamic> patient;
+  final String patientId;
+  final String name;
+  final String byStanderName;
+  final String relationToPatient;
+  final String phoneNumber;
+  final String illness;
+  final String address;
+  final String surgeryDueDate;
+  final String sex;
 
-  const EditPatientPage({Key? key, required this.patient}) : super(key: key);
+  const EditPatientPage({
+    Key? key,
+    required this.patientId,
+    required this.name,
+    required this.phoneNumber,
+    required this.illness,
+    required this.address,
+    required this.surgeryDueDate,
+    required this.sex,
+    required this.byStanderName,
+    required this.relationToPatient,
+  }) : super(key: key);
 
   @override
   State<EditPatientPage> createState() => _EditPatientPageState();
 }
 
 class _EditPatientPageState extends State<EditPatientPage> {
-  late TextEditingController _nameController;
-  late TextEditingController _sexController;
-  late TextEditingController _phoneNumberController;
-  late TextEditingController _illnessController;
-  late TextEditingController _descriptionController;
-  late TextEditingController _surgeryDueDateController;
+  final _formKey = GlobalKey<FormState>();
+
+  // Declare TextEditingControllers for each input field
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _relationToPatient = TextEditingController();
+  final TextEditingController _bystanderName = TextEditingController();
+  final TextEditingController _illnessController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _surgeryDateController = TextEditingController();
+
+  String selectedGender = 'Male'; // Default gender
 
   @override
   void initState() {
     super.initState();
-    // Initialize controllers with the current patient data
-    _nameController = TextEditingController(text: widget.patient['name']);
-    _sexController = TextEditingController(text: widget.patient['sex']);
-    _phoneNumberController =
-        TextEditingController(text: widget.patient['phoneNumber']);
-    _illnessController = TextEditingController(text: widget.patient['illness']);
-    _descriptionController =
-        TextEditingController(text: widget.patient['description']);
-    _surgeryDueDateController =
-        TextEditingController(text: widget.patient['surgeryDueDate']);
+    // Initialize the controllers with existing data
+    _nameController.text = widget.name;
+    _phoneNumberController.text = widget.phoneNumber;
+    _illnessController.text = widget.illness;
+    _addressController.text = widget.address;
+    _surgeryDateController.text = widget.surgeryDueDate;
+    selectedGender = widget.sex;
   }
 
-  // Function to save edited data back to the patient list
-  Future<void> _saveEditedData() async {
-    // Update patient data with the edited values
-    widget.patient['name'] = _nameController.text;
-    widget.patient['sex'] = _sexController.text;
-    widget.patient['phoneNumber'] = _phoneNumberController.text;
-    widget.patient['illness'] = _illnessController.text;
-    widget.patient['description'] = _descriptionController.text;
-    widget.patient['surgeryDueDate'] = _surgeryDueDateController.text;
-
-    // Save changes to the patient data (you can implement saving to a JSON file or Firebase here)
-
-    // Return to the PatientDetailsPage
-    Navigator.pop(context);
+  // Function to update the patient data in Firestore
+  Future<void> _updatePatient() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('patients')
+            .doc(widget.patientId)
+            .update({
+          'name': _nameController.text,
+          'sex': selectedGender,
+          'age': _ageController,
+          'bystanderName': _bystanderName.text,
+          'relationshipToPatient': _relationToPatient.text,
+          'phoneNumber': _phoneNumberController.text,
+          'illness': _illnessController.text,
+          'address': _addressController.text,
+          'surgeryDueDate': _surgeryDateController.text,
+        });
+        if (!mounted) return;
+        Navigator.pop(context); // Go back after updating
+      } catch (e) {
+        // print('Error updating patient: $e');
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Failed to update patient. Please try again.')),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Patient'),
+        title: const Text('Edit Patient'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            CustomTextFeild(
-              controller: _nameController,
-              hintText: 'Name',
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                CustomTextFeild(
+                  controller: _nameController,
+                  labelText: 'Name',
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(9),
+                  child: TextFormField(
+                    controller: _ageController,
+                    keyboardType: TextInputType.number, // Numeric keyboard
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      labelText: 'Age',
+                      hintStyle: TextStyle(
+                        fontFamily: 'Centaur',
+                        fontSize: 16,
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Age is required';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: _buildGenderDropdown(),
+                ),
+                CustomTextFeild(
+                  controller: _bystanderName,
+                  labelText: 'Bystander Name',
+                ),
+                CustomTextFeild(
+                    controller: _relationToPatient,
+                    labelText: 'Relationship to patient'),
+                Padding(
+                  padding: const EdgeInsets.all(9),
+                  child: TextFormField(
+                    controller: _phoneNumberController,
+                    keyboardType: TextInputType.number, // Numeric keyboard
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      labelText: 'Bystander Phone Number',
+                      hintStyle: TextStyle(
+                        fontFamily: 'Centaur',
+                        fontSize: 16,
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Bystander Phone Number is required';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                CustomTextFeild(
+                  controller: _illnessController,
+                  labelText: 'Illness',
+                ),
+                CustomTextFeild(
+                  controller: _addressController,
+                  labelText: 'address',
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(9.0),
+                  child: TextFormField(
+                    controller: _surgeryDateController,
+                    readOnly: true,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      labelText: 'Surgery Date',
+                      suffixIcon: Icon(Icons.calendar_today),
+                    ),
+                    onTap: () async {
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+
+                      if (pickedDate != null) {
+                        _surgeryDateController.text =
+                            "${pickedDate.toLocal()}".split(' ')[0];
+                      }
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: ElevatedButton(
+                    onPressed: _updatePatient,
+                    child: const Text('Update Patient'),
+                  ),
+                ),
+              ],
             ),
-            _buildGenderDropdown(),
-            CustomTextFeild(
-              controller: _phoneNumberController,
-              hintText: 'Phone Number',
-            ),
-            CustomTextFeild(
-              controller: _illnessController,
-              hintText: 'Illness',
-            ),
-            CustomTextFeild(
-              controller: _descriptionController,
-              hintText: 'Description',
-            ),
-            CustomTextFeild(
-                controller: _surgeryDueDateController,
-                hintText: 'Surgery Due Date'),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _saveEditedData,
-              child: Text('Save Changes'),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
-
-  String selectedGender = 'Male'; // Store the selected gender here
 
   Widget _buildGenderDropdown() {
     List<String> genderOptions = ['Male', 'Female', 'Other'];
@@ -126,13 +246,12 @@ class _EditPatientPageState extends State<EditPatientPage> {
 
   @override
   void dispose() {
-    // Dispose controllers when the page is closed
     _nameController.dispose();
-    _sexController.dispose();
+    _ageController.dispose();
     _phoneNumberController.dispose();
     _illnessController.dispose();
-    _descriptionController.dispose();
-    _surgeryDueDateController.dispose();
+    _addressController.dispose();
+    _surgeryDateController.dispose();
     super.dispose();
   }
 }

@@ -1,15 +1,11 @@
-import 'dart:convert';
-import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:surgery_doc/components/textfeild.dart';
 
 enum Gender { male, female, other }
 
 class AddPatientPage extends StatefulWidget {
-  final Map<String, dynamic> existingPatients;
-  const AddPatientPage({Key? key, required this.existingPatients})
-      : super(key: key);
+  const AddPatientPage({Key? key}) : super(key: key);
 
   @override
   State<AddPatientPage> createState() => _AddPatientPageState();
@@ -20,66 +16,42 @@ class _AddPatientPageState extends State<AddPatientPage> {
 
   // Declare TextEditingControllers for each input field
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _sexController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _relationToPatient = TextEditingController();
+  final TextEditingController _bystanderName = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _illnessController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _surgeryDueDateController =
-      TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _surgeryDateController = TextEditingController();
 
-  // Function to get the path to the local file
-  Future<String> _getLocalFilePath() async {
-    final directory = await getApplicationDocumentsDirectory();
-    return '${directory.path}/patients.json';
-  }
-
-  // Function to save new patient data to the JSON file
-
-  Future<void> _savePatientData() async {
+  // Function to add a new patient to Firestore
+  Future<void> _addPatient() async {
     if (_formKey.currentState!.validate()) {
-      // Get data directly from the controllers
-      String name = _nameController.text;
-      String sex = _sexController.text;
-      String phoneNumber = _phoneNumberController.text;
-      String illness = _illnessController.text;
-      String description = _descriptionController.text;
-      String surgeryDueDate = _surgeryDueDateController.text;
-
-      // Get the current list of patients
-      List<dynamic> patients =
-          List.from(widget.existingPatients['patients'] ?? []);
-
-      // Generate new patient data
-      final newPatient = {
-        "id": DateTime.now().millisecondsSinceEpoch.toString(),
-        "name": name,
-        "sex": sex,
-        "phoneNumber": phoneNumber,
-        "illness": illness,
-        "description": description,
-        "surgeryDueDate": surgeryDueDate,
-        "currentStage": 1,
-        "status": "Pending",
-        "anxietyScoreBeforeSurgery": null,
-        "anxietyScoreAfterSurgery": null,
-        "qualityOfLifeScore": null
-      };
-
-      // Add the new patient to the existing list
-      patients.add(newPatient);
-
-      // Save the updated list back to the JSON file
       try {
-        final filePath = await _getLocalFilePath();
-        final file = File(filePath);
-        final data = json.encode({"patients": patients});
-        await file.writeAsString(data);
+        await FirebaseFirestore.instance.collection('patients').add({
+          'name': _nameController.text,
+          'sex': selectedGender,
+          'age': _ageController,
+          'bystanderName': _bystanderName.text,
+          'relationshipToPatient': _relationToPatient.text,
+          'phoneNumber': _phoneNumberController.text,
+          'illness': _illnessController.text,
+          'address': _addressController.text,
+          'surgeryDueDate': _surgeryDateController.text,
+          'currentStage': 1, // Default to Stage 1
+          'anxietyScoreBeforeSurgery': 0,
+          'anxietyScoreAfterSurgery': 0,
+          'qualityOfLifeScore': 0,
+        });
+        if (!mounted) return;
+        Navigator.pop(context); // Return to HomePage after adding the patient
       } catch (e) {
-        print("Error saving patient data: $e");
+        // print('Error adding patient: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Failed to add patient. Please try again.')),
+        );
       }
-
-      // Return to the home page after saving
-      Navigator.pop(context);
     }
   }
 
@@ -87,43 +59,123 @@ class _AddPatientPageState extends State<AddPatientPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add New Patient'),
+        title: const Text('Add New Patient'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              CustomTextFeild(
-                controller: _nameController,
-                hintText: 'Name',
-              ),
-              _buildGenderDropdown(),
-              CustomTextFeild(
-                controller: _phoneNumberController,
-                hintText: 'Phone Number',
-              ),
-              CustomTextFeild(
-                controller: _illnessController,
-                hintText: 'Illness',
-              ),
-              CustomTextFeild(
-                controller: _descriptionController,
-                hintText: 'Description',
-              ),
-              CustomTextFeild(
-                  controller: _surgeryDueDateController,
-                  hintText: 'Surgery Due Date'),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: ElevatedButton(
-                  onPressed: _savePatientData,
-                  child: Text('Save Patient'),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                CustomTextFeild(
+                  controller: _nameController,
+                  labelText: 'Name',
                 ),
-              ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.all(9),
+                  child: TextFormField(
+                    controller: _ageController,
+                    keyboardType: TextInputType.number, // Numeric keyboard
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      labelText: 'Age',
+                      hintStyle: TextStyle(
+                        fontFamily: 'Centaur',
+                        fontSize: 16,
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Age is required';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: _buildGenderDropdown(),
+                ),
+                CustomTextFeild(
+                  controller: _bystanderName,
+                  labelText: 'Bystander Name',
+                ),
+                CustomTextFeild(
+                    controller: _relationToPatient,
+                    labelText: 'Relationship to patient'),
+                Padding(
+                  padding: const EdgeInsets.all(9),
+                  child: TextFormField(
+                    controller: _phoneNumberController,
+                    keyboardType: TextInputType.number, // Numeric keyboard
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      labelText: 'Bystander Phone Number',
+                      hintStyle: TextStyle(
+                        fontFamily: 'Centaur',
+                        fontSize: 16,
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Bystander Phone Number is required';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                CustomTextFeild(
+                  controller: _illnessController,
+                  labelText: 'Illness',
+                ),
+                CustomTextFeild(
+                  controller: _addressController,
+                  labelText: 'Address',
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(9.0),
+                  child: TextFormField(
+                    controller: _surgeryDateController,
+                    readOnly: true, // Prevent manual editing
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      labelText: 'Surgery Date',
+                      suffixIcon: Icon(Icons.calendar_today),
+                    ),
+                    onTap: () async {
+                      // Show the date picker
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(), // Default to today's date
+                        firstDate: DateTime(2000), // Earliest selectable date
+                        lastDate: DateTime(2100), // Latest selectable date
+                      );
+
+                      if (pickedDate != null) {
+                        // Format the date and set it in the controller
+                        _surgeryDateController.text =
+                            "${pickedDate.toLocal()}".split(' ')[0];
+                      }
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: ElevatedButton(
+                    onPressed: _addPatient,
+                    child: const Text('Save Patient'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -167,11 +219,11 @@ class _AddPatientPageState extends State<AddPatientPage> {
   void dispose() {
     // Dispose controllers when the page is closed
     _nameController.dispose();
-    _sexController.dispose();
+    _ageController.dispose();
     _phoneNumberController.dispose();
     _illnessController.dispose();
-    _descriptionController.dispose();
-    _surgeryDueDateController.dispose();
+    _addressController.dispose();
+    _surgeryDateController.dispose();
     super.dispose();
   }
 }

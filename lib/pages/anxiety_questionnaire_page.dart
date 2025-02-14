@@ -1,22 +1,24 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:surgery_doc/components/textfeild.dart';
 
 class AnxietyQuestionnairePage extends StatefulWidget {
-  final Map<String, dynamic> patient;
+  final String patientId; // Firestore document ID
 
-  const AnxietyQuestionnairePage({Key? key, required this.patient})
-      : super(key: key);
+  const AnxietyQuestionnairePage({
+    Key? key,
+    required this.patientId,
+  }) : super(key: key);
 
   @override
-  _AnxietyQuestionnairePageState createState() =>
+  State<AnxietyQuestionnairePage> createState() =>
       _AnxietyQuestionnairePageState();
 }
 
 class _AnxietyQuestionnairePageState extends State<AnxietyQuestionnairePage> {
   // Store the selected values for each question
   final List<int> _answers = List.filled(14, 0); // 14 questions
-
-  final TextEditingController _anxietyScoreController = TextEditingController();
+  int? _currentStage;
+  bool _isLoading = true;
 
   // List of questions
   final List<String> _questions = [
@@ -36,33 +38,91 @@ class _AnxietyQuestionnairePageState extends State<AnxietyQuestionnairePage> {
     "14. Behavior at interview: Fidgeting, restlessness, tremor of hands."
   ];
 
-  // Function to handle form submission
-  void _submitForm() {
-    int totalScore = _answers.reduce((value, element) => value + element);
+  @override
+  void initState() {
+    super.initState();
+    _fetchCurrentStage(); // Fetch the current stage from Firestore
+  }
 
-    // Save the total score to the patient data (could be stored locally or in Firebase)
-    widget.patient['anxietyScoreBeforeSurgery'] = totalScore;
+  // Fetch the current stage from Firestore
+  Future<void> _fetchCurrentStage() async {
+    try {
+      final docSnapshot = await FirebaseFirestore.instance
+          .collection('patients')
+          .doc(widget.patientId)
+          .get();
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data();
+        setState(() {
+          _currentStage = data?['currentStage'] ?? 1; // Default to Stage 1
+        });
+      }
+    } catch (e) {
+      // print('Error fetching patient data: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to fetch patient data.')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
-    // Return to the previous page (or move to the next stage)
-    Navigator.pop(context);
+  // Update the anxiety score in Firestore
+  Future<void> _saveAnxietyScore() async {
+    try {
+      final totalScore = _answers.reduce((value, element) => value + element);
+      final fieldToUpdate = _currentStage == 1
+          ? 'anxietyScoreBeforeSurgery'
+          : 'anxietyScoreAfterSurgery';
+
+      await FirebaseFirestore.instance
+          .collection('patients')
+          .doc(widget.patientId)
+          .update({
+        fieldToUpdate: totalScore,
+        'currentStage': _currentStage! + 1, // Move to the next stage
+      });
+
+      // Navigate back or show success message
+      if (!mounted) return;
+      Navigator.pop(context);
+    } catch (e) {
+      // print('Error saving anxiety score: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Failed to save score. Please try again.')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Anxiety Questionnaire'),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Anxiety Questionnaire'),
+        title: Text('Anxiety Questionnaire (Stage $_currentStage)'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(
+            const Text(
               'Please rate the following questions based on the patient’s symptoms:',
               style: TextStyle(fontSize: 18),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: ListView.builder(
                 itemCount: _questions.length,
@@ -72,7 +132,7 @@ class _AnxietyQuestionnairePageState extends State<AnxietyQuestionnairePage> {
                     children: <Widget>[
                       Text(
                         _questions[index],
-                        style: TextStyle(fontSize: 16),
+                        style: const TextStyle(fontSize: 16),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -93,22 +153,23 @@ class _AnxietyQuestionnairePageState extends State<AnxietyQuestionnairePage> {
                           );
                         }),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                     ],
                   );
                 },
               ),
             ),
-            CustomTextFeild(
-                controller: _anxietyScoreController,
-                hintText: 'Enter Anxiety Score (0-56)'),
+            Text(
+              'Calculated Anxiety Score: ${_answers.reduce((a, b) => a + b)}',
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: _submitForm,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
+                    onPressed: _saveAnxietyScore,
+                    child: const Padding(
+                      padding: EdgeInsets.all(12.0),
                       child: Text('Submit'),
                     ),
                   ),

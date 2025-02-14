@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 class CustomTextFeild extends StatelessWidget {
   final TextEditingController controller;
-  final String hintText;
+  final String labelText;
 
   const CustomTextFeild({
     super.key,
     required this.controller,
-    required this.hintText,
+    required this.labelText,
   });
 
   @override
@@ -16,11 +16,14 @@ class CustomTextFeild extends StatelessWidget {
       padding: const EdgeInsets.all(9),
       child: TextFormField(
         controller: controller,
+        keyboardType: TextInputType.text, // For text input
+        textCapitalization: TextCapitalization
+            .words, // Automatically capitalize first letter of each word
         decoration: InputDecoration(
           border: const OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(10)),
           ),
-          hintText: hintText,
+          labelText: labelText,
           hintStyle: const TextStyle(
             fontFamily: 'Centaur',
             fontSize: 16,
@@ -28,7 +31,7 @@ class CustomTextFeild extends StatelessWidget {
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return '$hintText is required';
+            return '$labelText is required';
           }
           return null;
         },

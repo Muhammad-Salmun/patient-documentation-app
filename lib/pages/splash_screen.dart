@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:surgery_doc/pages/loading_page.dart';
+import 'package:surgery_doc/pages/home.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,9 +13,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 1), () {
+    Timer(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => LoadingPage()));
+          context, MaterialPageRoute(builder: (context) => const HomePage()));
     });
   }
 
@@ -24,38 +24,53 @@ class _SplashScreenState extends State<SplashScreen> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color.fromRGBO(234, 162, 47, 1),
+        scaffoldBackgroundColor: const Color.fromRGBO(62, 72, 82, 1),
       ),
       home: const Scaffold(
         body: Center(
-          child: Stack(
-            children: [
-              // Image.asset(
-              //   'assets/images/splash_image.png',
-              //   fit: BoxFit.cover,
-              //   width: MediaQuery.of(context).size.width,
-              // ),
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image(
-                      image: AssetImage('assets/images/splash_image.png'),
-                      fit: BoxFit.contain,
-                    ),
-                    Text(
-                      'Patient Documents',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFFFFFBFB),
-                        fontSize: 40,
-                        fontFamily: 'Lalezar',
+          child: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 80),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(height: 1),
+                  Column(
+                    children: [
+                      Text(
+                        'Patient Care Tracker',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 56,
+                            fontWeight: FontWeight.bold),
                       ),
-                    ),
-                  ],
-                ),
+                      SizedBox(height: 5),
+                      CircularProgressIndicator(),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Text(
+                        'Powered by',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white54,
+                        ),
+                      ),
+                      Text(
+                        'Phiscape',
+                        style: TextStyle(
+                          fontFamily: 'PaytoneOne',
+                          fontSize: 28,
+                          color: Colors.white,
+                        ),
+                      )
+                    ],
+                  )
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

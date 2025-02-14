@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "415962937470",
+    "project_id": "post-op-survey",
+    "storage_bucket": "post-op-survey.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:415962937470:android:90d1a1a065232ebcff002f",
+        "android_client_info": {
+          "package_name": "com.phiscape.surgery_doc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBH04IEeCRUpd90PP7lZIfBLoJEm8qDwkw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
