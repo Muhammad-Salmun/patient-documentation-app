@@ -5,6 +5,7 @@ import 'package:surgery_doc/components/textfeild.dart';
 class EditPatientPage extends StatefulWidget {
   final String patientId;
   final String name;
+  final String age;
   final String byStanderName;
   final String relationToPatient;
   final String phoneNumber;
@@ -17,6 +18,7 @@ class EditPatientPage extends StatefulWidget {
     Key? key,
     required this.patientId,
     required this.name,
+    required this.age,
     required this.phoneNumber,
     required this.illness,
     required this.address,
@@ -67,7 +69,7 @@ class _EditPatientPageState extends State<EditPatientPage> {
             .update({
           'name': _nameController.text,
           'sex': selectedGender,
-          'age': _ageController,
+          'age': int.parse(_ageController.text),
           'bystanderName': _bystanderName.text,
           'relationshipToPatient': _relationToPatient.text,
           'phoneNumber': _phoneNumberController.text,

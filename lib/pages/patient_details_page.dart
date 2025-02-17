@@ -97,6 +97,7 @@ class _PatientDetailsPageState extends State<PatientDetailsPage> {
                   builder: (context) => EditPatientPage(
                     patientId: patient.id,
                     name: patient.name,
+                    age: patient.age,
                     phoneNumber: patient.phoneNumber,
                     illness: patient.illness,
                     address: patient.address,
@@ -124,6 +125,7 @@ class _PatientDetailsPageState extends State<PatientDetailsPage> {
           children: <Widget>[
             Text('Name: ${patient.name}', style: const TextStyle(fontSize: 18)),
             Text('Sex: ${patient.sex}', style: const TextStyle(fontSize: 18)),
+            Text('Age: ${patient.age}'),
             Text('Phone Number: ${patient.phoneNumber}',
                 style: const TextStyle(fontSize: 18)),
             Text('Illness: ${patient.illness}',

@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Patient {
   final String id; // Firestore document ID
   final String name;
+  final String age;
   final String sex;
   final String bystanderName;
   final String relationToPatient;
@@ -18,6 +19,7 @@ class Patient {
   Patient({
     required this.id,
     required this.name,
+    required this.age,
     required this.sex,
     required this.bystanderName,
     required this.relationToPatient,
@@ -36,6 +38,7 @@ class Patient {
     return Patient(
       id: doc.id,
       name: data['name'] ?? 'Unknown',
+      age: data['age'] ?? 'Unknown',
       sex: data['sex'] ?? 'Unknown',
       bystanderName: data['bystanderName'] ?? 'Unknown',
       relationToPatient: data['relationToPatient'] ?? 'Unknown',
