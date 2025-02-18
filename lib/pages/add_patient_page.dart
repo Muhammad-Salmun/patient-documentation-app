@@ -31,7 +31,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
         await FirebaseFirestore.instance.collection('patients').add({
           'name': _nameController.text,
           'sex': selectedGender,
-          'age': int.parse(_ageController.text),
+          'age': _ageController.text,
           'bystanderName': _bystanderName.text,
           'relationshipToPatient': _relationToPatient.text,
           'phoneNumber': _phoneNumberController.text,

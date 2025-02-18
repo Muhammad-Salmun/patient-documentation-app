@@ -54,14 +54,10 @@ class DefaultFirebaseOptions {
   }
 
   static FirebaseOptions android = FirebaseOptions(
-    apiKey: dotenv.env['FIREBASE_API_KEY'] ??
-        (throw Exception('Missing FIREBASE_API_KEY in .env file')),
-    appId: dotenv.env['FIREBASE_APP_ID'] ??
-        (throw Exception('Missing FIREBASE_APP_ID in .env file')),
-    messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ??
-        (throw Exception('Missing FIREBASE_MESSAGING_SENDER_ID in .env file')),
-    projectId: dotenv.env[''] ??
-        (throw Exception('Missing FIREBASE_PROJECT_ID in .env file')),
-    storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'],
+    apiKey: 'AIzaSyBH04IEeCRUpd90PP7lZIfBLoJEm8qDwkw',
+    appId: '1:415962937470:android:90d1a1a065232ebcff002f',
+    messagingSenderId: '415962937470',
+    projectId: 'post-op-survey',
+    storageBucket: 'post-op-survey.firebasestorage.app',
   );
 }
