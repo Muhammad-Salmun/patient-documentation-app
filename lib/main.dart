@@ -10,5 +10,6 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await dotenv.load(fileName: ".env");
+  print(dotenv.env);
   runApp(const MyApp());
 }
