@@ -7,7 +7,7 @@ class EditPatientPage extends StatefulWidget {
   final String name;
   final String age;
   final String byStanderName;
-  final String relationToPatient;
+  final String relationshipToPatient;
   final String phoneNumber;
   final String illness;
   final String address;
@@ -25,7 +25,7 @@ class EditPatientPage extends StatefulWidget {
     required this.surgeryDueDate,
     required this.sex,
     required this.byStanderName,
-    required this.relationToPatient,
+    required this.relationshipToPatient,
   }) : super(key: key);
 
   @override
@@ -39,8 +39,10 @@ class _EditPatientPageState extends State<EditPatientPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
-  final TextEditingController _relationToPatient = TextEditingController();
-  final TextEditingController _bystanderName = TextEditingController();
+  final TextEditingController _relationshipToPatientController =
+      TextEditingController();
+  final TextEditingController _bystanderNameController =
+      TextEditingController();
   final TextEditingController _illnessController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _surgeryDateController = TextEditingController();
@@ -52,10 +54,13 @@ class _EditPatientPageState extends State<EditPatientPage> {
     super.initState();
     // Initialize the controllers with existing data
     _nameController.text = widget.name;
+    _ageController.text = widget.age;
     _phoneNumberController.text = widget.phoneNumber;
     _illnessController.text = widget.illness;
     _addressController.text = widget.address;
     _surgeryDateController.text = widget.surgeryDueDate;
+    _bystanderNameController.text = widget.byStanderName;
+    _relationshipToPatientController.text = widget.relationshipToPatient;
     selectedGender = widget.sex;
   }
 
@@ -70,8 +75,8 @@ class _EditPatientPageState extends State<EditPatientPage> {
           'name': _nameController.text,
           'sex': selectedGender,
           'age': _ageController.text,
-          'bystanderName': _bystanderName.text,
-          'relationshipToPatient': _relationToPatient.text,
+          'bystanderName': _bystanderNameController.text,
+          'relationshipToPatient': _relationshipToPatientController.text,
           'phoneNumber': _phoneNumberController.text,
           'illness': _illnessController.text,
           'address': _addressController.text,
@@ -136,11 +141,11 @@ class _EditPatientPageState extends State<EditPatientPage> {
                   child: _buildGenderDropdown(),
                 ),
                 CustomTextFeild(
-                  controller: _bystanderName,
+                  controller: _bystanderNameController,
                   labelText: 'Bystander Name',
                 ),
                 CustomTextFeild(
-                    controller: _relationToPatient,
+                    controller: _relationshipToPatientController,
                     labelText: 'Relationship to patient'),
                 Padding(
                   padding: const EdgeInsets.all(9),

@@ -6,7 +6,7 @@ class Patient {
   final String age;
   final String sex;
   final String bystanderName;
-  final String relationToPatient;
+  final String relationshipToPatient;
   final String phoneNumber;
   final String illness;
   final String address;
@@ -22,7 +22,7 @@ class Patient {
     required this.age,
     required this.sex,
     required this.bystanderName,
-    required this.relationToPatient,
+    required this.relationshipToPatient,
     required this.phoneNumber,
     required this.illness,
     required this.address,
@@ -41,7 +41,7 @@ class Patient {
       age: data['age'] ?? 'Unknown',
       sex: data['sex'] ?? 'Unknown',
       bystanderName: data['bystanderName'] ?? 'Unknown',
-      relationToPatient: data['relationToPatient'] ?? 'Unknown',
+      relationshipToPatient: data['relationshipToPatient'] ?? 'Unknown',
       phoneNumber: data['phoneNumber'] ?? 'Unknown',
       illness: data['illness'] ?? 'Unknown',
       address: data['address'] ?? 'Unknown',

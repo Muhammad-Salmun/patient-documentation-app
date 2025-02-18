@@ -17,7 +17,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
   // Declare TextEditingControllers for each input field
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
-  final TextEditingController _relationToPatient = TextEditingController();
+  final TextEditingController _relationshipToPatient = TextEditingController();
   final TextEditingController _bystanderName = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _illnessController = TextEditingController();
@@ -33,7 +33,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
           'sex': selectedGender,
           'age': _ageController.text,
           'bystanderName': _bystanderName.text,
-          'relationshipToPatient': _relationToPatient.text,
+          'relationshipToPatient': _relationshipToPatient.text,
           'phoneNumber': _phoneNumberController.text,
           'illness': _illnessController.text,
           'address': _addressController.text,
@@ -105,7 +105,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
                   labelText: 'Bystander Name',
                 ),
                 CustomTextFeild(
-                    controller: _relationToPatient,
+                    controller: _relationshipToPatient,
                     labelText: 'Relationship to patient'),
                 Padding(
                   padding: const EdgeInsets.all(9),
