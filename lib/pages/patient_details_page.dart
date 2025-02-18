@@ -104,7 +104,7 @@ class _PatientDetailsPageState extends State<PatientDetailsPage> {
                     surgeryDueDate: patient.surgeryDueDate,
                     sex: patient.sex,
                     byStanderName: patient.bystanderName,
-                    relationToPatient: patient.relationToPatient,
+                    relationshipToPatient: patient.relationshipToPatient,
                   ),
                 ),
               );
@@ -125,7 +125,7 @@ class _PatientDetailsPageState extends State<PatientDetailsPage> {
           children: <Widget>[
             Text('Name: ${patient.name}', style: const TextStyle(fontSize: 18)),
             Text('Sex: ${patient.sex}', style: const TextStyle(fontSize: 18)),
-            Text('Age: ${patient.age}'),
+            Text('Age: ${patient.age}', style: const TextStyle(fontSize: 18)),
             Text('Phone Number: ${patient.phoneNumber}',
                 style: const TextStyle(fontSize: 18)),
             Text('Illness: ${patient.illness}',
@@ -133,6 +133,10 @@ class _PatientDetailsPageState extends State<PatientDetailsPage> {
             Text('Address: ${patient.address}',
                 style: const TextStyle(fontSize: 18)),
             Text('Surgery Due Date: ${patient.surgeryDueDate}',
+                style: const TextStyle(fontSize: 18)),
+            Text('Bystander Name: ${patient.bystanderName}',
+                style: const TextStyle(fontSize: 18)),
+            Text('Relation to patient: ${patient.relationshipToPatient}',
                 style: const TextStyle(fontSize: 18)),
 
             const SizedBox(height: 20),
