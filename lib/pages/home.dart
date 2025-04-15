@@ -289,6 +289,7 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => const AddPatientPage()));
+          _fetchPatients();
         },
         tooltip: 'Add Patient',
         child: const Icon(Icons.add),
