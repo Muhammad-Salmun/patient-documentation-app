@@ -2,8 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:surgery_doc/components/textfeild.dart';
 
-enum Gender { male, female, other }
-
 class AddPatientPage extends StatefulWidget {
   const AddPatientPage({Key? key}) : super(key: key);
 
@@ -24,6 +22,8 @@ class _AddPatientPageState extends State<AddPatientPage> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _surgeryDateController = TextEditingController();
 
+  bool _isLoading = false;
+
   // Function to add a new patient to Firestore
   Future<void> _addPatient() async {
     if (_formKey.currentState!.validate()) {
@@ -42,8 +42,10 @@ class _AddPatientPageState extends State<AddPatientPage> {
           'anxietyScoreBeforeSurgery': 0,
           'anxietyScoreAfterSurgery': 0,
           'qualityOfLifeScore': 0,
+          'createdAt': FieldValue.serverTimestamp(),
         });
         if (!mounted) return;
+        setState(() => _isLoading = false);
         Navigator.pop(context); // Return to HomePage after adding the patient
       } catch (e) {
         // print('Error adding patient: $e');
@@ -169,10 +171,24 @@ class _AddPatientPageState extends State<AddPatientPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: ElevatedButton(
-                    onPressed: _addPatient,
-                    child: const Text('Save Patient'),
-                  ),
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                  onPressed: _addPatient,
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(14.0),
+                                    child: Text(
+                                      'Save Patient',
+                                      style: TextStyle(fontSize: 22),
+                                    ),
+                                  )),
+                            ),
+                          ],
+                        ),
                 ),
               ],
             ),
