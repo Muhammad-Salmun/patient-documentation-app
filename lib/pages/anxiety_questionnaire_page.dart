@@ -64,7 +64,8 @@ class _AnxietyQuestionnairePageState extends State<AnxietyQuestionnairePage> {
   }
 
   Future<void> _saveAnxietyScore() async {
-    final totalScore = _answers.fold(0, (sum, value) => sum + (value ?? 0));
+    final totalScore =
+        _answers.fold(0, (sumOfNum, value) => sumOfNum + (value ?? 0));
     final fieldToUpdate = _currentStage == 1
         ? 'anxietyScoreBeforeSurgery'
         : 'anxietyScoreAfterSurgery';
@@ -112,8 +113,8 @@ class _AnxietyQuestionnairePageState extends State<AnxietyQuestionnairePage> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: Text('Anxiety Questionnaire')),
-        body: Center(child: CircularProgressIndicator()),
+        appBar: AppBar(title: const Text('Anxiety Questionnaire')),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -166,7 +167,7 @@ class _AnxietyQuestionnairePageState extends State<AnxietyQuestionnairePage> {
             ),
             const SizedBox(height: 10),
             Text(
-              'Total Score: ${_answers.whereType<int>().fold(0, (sum, value) => sum + value)}',
+              'Total Score: ${_answers.whereType<int>().fold(0, (sumOfNum, value) => sumOfNum + value)}',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
