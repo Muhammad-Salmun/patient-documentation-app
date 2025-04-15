@@ -120,8 +120,6 @@ class _PatientDetailsPageState extends State<PatientDetailsPage> {
               );
             },
           ),
-          IconButton(
-              icon: const Icon(Icons.refresh), onPressed: _refreshPatientData),
         ],
       ),
       body: RefreshIndicator(
