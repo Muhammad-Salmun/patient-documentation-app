@@ -21,6 +21,7 @@ class _HomePageState extends State<HomePage> {
   bool _isLoading = false;
   final TextEditingController _searchController = TextEditingController();
   String searchQuery = '';
+  DateTime? _selectedDate;
 
   String selectedStageFilter = 'All';
   String selectedSexFilter = 'All';
@@ -79,7 +80,15 @@ class _HomePageState extends State<HomePage> {
       final matchesSex = selectedSexFilter == 'All' ||
           patient.sex.toLowerCase() == selectedSexFilter.toLowerCase();
 
-      return matchesName && matchesStage && matchesSex;
+      final matchesDate = _selectedDate == null ||
+          (patient.surgeryDueDate != '' &&
+              DateTime.tryParse(patient.surgeryDueDate)
+                      ?.toLocal()
+                      .toString()
+                      .split(' ')[0] ==
+                  _selectedDate!.toLocal().toString().split(' ')[0]);
+
+      return matchesName && matchesStage && matchesSex && matchesDate;
     }).toList();
 
     return Scaffold(
@@ -143,9 +152,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         const SizedBox(height: 8),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            // Stage Filter
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,7 +180,6 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             const SizedBox(width: 12),
-                            // Sex Filter
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,7 +204,44 @@ class _HomePageState extends State<HomePage> {
                                 ],
                               ),
                             ),
-                            const SizedBox(width: 12),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                icon: const Icon(Icons.calendar_today),
+                                label: Text(
+                                  _selectedDate == null
+                                      ? 'Filter by Surgery Date'
+                                      : 'Date: ${_selectedDate!.toLocal().toString().split(' ')[0]}',
+                                ),
+                                onPressed: () async {
+                                  DateTime? pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(2020),
+                                    lastDate: DateTime(2100),
+                                  );
+                                  if (pickedDate != null) {
+                                    setState(() {
+                                      _selectedDate = pickedDate;
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.clear),
+                              tooltip: 'Clear Date Filter',
+                              onPressed: () {
+                                setState(() {
+                                  _selectedDate = null;
+                                });
+                              },
+                            )
                           ],
                         ),
                       ],
