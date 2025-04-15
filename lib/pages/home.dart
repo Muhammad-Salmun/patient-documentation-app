@@ -28,7 +28,6 @@ class _HomePageState extends State<HomePage> {
 
   final List<String> stageOptions = ['All', '1', '2', '3', '4'];
   final List<String> sexOptions = ['All', 'Male', 'Female', 'Other'];
-  final List<String> statusOptions = ['All', 'Pending', 'Completed'];
 
   @override
   void initState() {
@@ -80,11 +79,7 @@ class _HomePageState extends State<HomePage> {
       final matchesSex = selectedSexFilter == 'All' ||
           patient.sex.toLowerCase() == selectedSexFilter.toLowerCase();
 
-      final matchesStatus = selectedStatusFilter == 'All' ||
-          (selectedStatusFilter == 'Completed' && patient.currentStage == 4) ||
-          (selectedStatusFilter == 'Pending' && patient.currentStage < 4);
-
-      return matchesName && matchesStage && matchesSex && matchesStatus;
+      return matchesName && matchesStage && matchesSex;
     }).toList();
 
     return Scaffold(
@@ -142,7 +137,7 @@ class _HomePageState extends State<HomePage> {
                                 });
                               },
                               icon: const Icon(Icons.refresh),
-                              label: const Text("Reset Filters"),
+                              label: const Text("Clear Filters"),
                             )
                           ],
                         ),
@@ -204,31 +199,6 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             const SizedBox(width: 12),
-                            // Status Filter
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text("Status",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w500)),
-                                  DropdownButton<String>(
-                                    isExpanded: true,
-                                    value: selectedStatusFilter,
-                                    items: statusOptions.map((status) {
-                                      return DropdownMenuItem(
-                                        value: status,
-                                        child: Text(status),
-                                      );
-                                    }).toList(),
-                                    onChanged: (value) {
-                                      setState(
-                                          () => selectedStatusFilter = value!);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
                           ],
                         ),
                       ],

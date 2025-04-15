@@ -33,11 +33,13 @@ class _PatientDetailsPageState extends State<PatientDetailsPage> {
         setState(() {
           patient = Patient.fromFirestore(doc);
         });
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Patient data refreshed')),
         );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
@@ -50,7 +52,8 @@ class _PatientDetailsPageState extends State<PatientDetailsPage> {
       builder: (context) => AlertDialog(
         title: const Text('Proceed to Next Stage?'),
         content: const Text(
-            'Are you sure you want to continue to the next stage? This action cannot be undone.'),
+          'Are you sure you want to continue to the next stage? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -64,29 +67,21 @@ class _PatientDetailsPageState extends State<PatientDetailsPage> {
       ),
     );
 
-    if (shouldProceed != true) return;
+    if (!mounted || shouldProceed != true) return;
 
-    // Proceed to next stage after confirmation
-    if (!mounted) return;
-    if (patient.currentStage > 3) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All stages completed')),
-      );
-    } else if (patient.currentStage == 3) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => QualityScoreQuestionnairePage(patientId: patient.id),
-        ),
-      );
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => AnxietyQuestionnairePage(patientId: patient.id),
-        ),
-      );
-    }
+    // Navigate to the questionnaire
+    // ignore: use_build_context_synchronously
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => patient.currentStage == 3
+            ? QualityScoreQuestionnairePage(patientId: patient.id)
+            : AnxietyQuestionnairePage(patientId: patient.id),
+      ),
+    );
+
+    // 🔁 Refresh patient data after coming back
+    await _refreshPatientData();
   }
 
   Widget _buildInfoTile(String label, String value, {IconData? icon}) {
@@ -199,7 +194,7 @@ class _PatientDetailsPageState extends State<PatientDetailsPage> {
               ),
             const SizedBox(height: 30),
             ElevatedButton.icon(
-              onPressed: _handleNextStage,
+              onPressed: patient.currentStage > 3 ? null : _handleNextStage,
               icon: const Icon(Icons.navigate_next),
               label: const Text('Next Stage', style: TextStyle(fontSize: 20)),
               style: ElevatedButton.styleFrom(
