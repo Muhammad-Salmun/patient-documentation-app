@@ -139,6 +139,8 @@ class _AddPatientPageState extends State<AddPatientPage> {
                 CustomTextFeild(
                   controller: _addressController,
                   labelText: 'Address',
+                  maxLines: 5,
+                  keyboardType: TextInputType.multiline,
                 ),
                 Padding(
                   padding: const EdgeInsets.all(9.0),
