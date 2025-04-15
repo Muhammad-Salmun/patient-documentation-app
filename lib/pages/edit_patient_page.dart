@@ -207,9 +207,21 @@ class _EditPatientPageState extends State<EditPatientPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: ElevatedButton(
-                    onPressed: _updatePatient,
-                    child: const Text('Update Patient'),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                            onPressed: _updatePatient,
+                            child: const Padding(
+                              padding: EdgeInsets.all(14.0),
+                              child: Text(
+                                'Update Patient',
+                                style: TextStyle(fontSize: 22),
+                              ),
+                            )),
+                      ),
+                    ],
                   ),
                 ),
               ],

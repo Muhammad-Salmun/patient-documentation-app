@@ -107,7 +107,7 @@ class _PatientDetailsPageState extends State<PatientDetailsPage> {
                   builder: (_) => EditPatientPage(
                     patientId: patient.id,
                     name: patient.name,
-                    age: patient.age as int,
+                    age: patient.age,
                     phoneNumber: patient.phoneNumber,
                     illness: patient.illness,
                     address: patient.address,
