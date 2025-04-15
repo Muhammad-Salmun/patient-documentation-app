@@ -1,13 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AnxietyQuestionnairePage extends StatefulWidget {
-  final String patientId; // Firestore document ID
+  final String patientId;
 
-  const AnxietyQuestionnairePage({
-    Key? key,
-    required this.patientId,
-  }) : super(key: key);
+  const AnxietyQuestionnairePage({Key? key, required this.patientId})
+      : super(key: key);
 
   @override
   State<AnxietyQuestionnairePage> createState() =>
@@ -15,97 +13,107 @@ class AnxietyQuestionnairePage extends StatefulWidget {
 }
 
 class _AnxietyQuestionnairePageState extends State<AnxietyQuestionnairePage> {
-  // Store the selected values for each question
-  final List<int> _answers = List.filled(14, 0); // 14 questions
+  final List<int?> _answers = List.filled(14, null);
   int? _currentStage;
   bool _isLoading = true;
 
-  // List of questions
   final List<String> _questions = [
-    "1. Anxious mood: Worries, anticipation of the worst, fearful anticipation, irritability.",
-    "2. Tension: Feelings of tension, fatigability, startle response, moved to tears easily.",
-    "3. Fears: Of dark, of strangers, of being left alone, of animals, of traffic.",
-    "4. Insomnia: Difficulty in falling asleep, broken sleep, unsatisfying sleep, nightmares.",
-    "5. Intellectual: Difficulty in concentration, poor memory.",
-    "6. Depressed mood: Loss of interest, lack of pleasure in hobbies.",
-    "7. Somatic (muscular): Pains and aches, twitching, stiffness.",
-    "8. Somatic (sensory): Tinnitus, blurring of vision, hot and cold flushes.",
-    "9. Cardiovascular symptoms: Tachycardia, palpitations, pain in chest.",
-    "10. Respiratory symptoms: Pressure or constriction in chest, choking feelings.",
-    "11. Gastrointestinal symptoms: Difficulty in swallowing, abdominal pain, nausea.",
-    "12. Genitourinary symptoms: Frequency of micturition, urgency, loss of libido.",
-    "13. Autonomic symptoms: Dry mouth, flushing, pallor, tendency to sweat.",
-    "14. Behavior at interview: Fidgeting, restlessness, tremor of hands."
+    "Anxious mood: Worries, anticipation of the worst, fearful anticipation, irritability.",
+    "Tension: Feelings of tension, fatigability, startle response, moved to tears easily.",
+    "Fears: Of dark, of strangers, of being left alone, of animals, of traffic.",
+    "Insomnia: Difficulty in falling asleep, broken sleep, unsatisfying sleep, nightmares.",
+    "Intellectual: Difficulty in concentration, poor memory.",
+    "Depressed mood: Loss of interest, lack of pleasure in hobbies.",
+    "Somatic (muscular): Pains and aches, twitching, stiffness.",
+    "Somatic (sensory): Tinnitus, blurring of vision, hot and cold flushes.",
+    "Cardiovascular: Tachycardia, palpitations, pain in chest.",
+    "Respiratory: Pressure or constriction in chest, choking feelings.",
+    "Gastrointestinal: Difficulty swallowing, abdominal pain, nausea.",
+    "Genitourinary: Frequency of micturition, urgency, loss of libido.",
+    "Autonomic: Dry mouth, flushing, pallor, tendency to sweat.",
+    "Behavior at interview: Fidgeting, restlessness, tremor of hands."
   ];
 
   @override
   void initState() {
     super.initState();
-    _fetchCurrentStage(); // Fetch the current stage from Firestore
+    _fetchCurrentStage();
   }
 
-  // Fetch the current stage from Firestore
   Future<void> _fetchCurrentStage() async {
     try {
-      final docSnapshot = await FirebaseFirestore.instance
+      final doc = await FirebaseFirestore.instance
           .collection('patients')
           .doc(widget.patientId)
           .get();
-      if (docSnapshot.exists) {
-        final data = docSnapshot.data();
+
+      if (doc.exists && mounted) {
         setState(() {
-          _currentStage = data?['currentStage'] ?? 1; // Default to Stage 1
+          _currentStage = doc['currentStage'] ?? 1;
         });
       }
-    } catch (e) {
-      // print('Error fetching patient data: $e');
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to fetch patient data.')),
-      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error fetching patient data.')),
+        );
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  // Update the anxiety score in Firestore
   Future<void> _saveAnxietyScore() async {
-    try {
-      final totalScore = _answers.reduce((value, element) => value + element);
-      final fieldToUpdate = _currentStage == 1
-          ? 'anxietyScoreBeforeSurgery'
-          : 'anxietyScoreAfterSurgery';
+    final totalScore = _answers.fold(0, (sum, value) => sum + (value ?? 0));
+    final fieldToUpdate = _currentStage == 1
+        ? 'anxietyScoreBeforeSurgery'
+        : 'anxietyScoreAfterSurgery';
 
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Submit Score?'),
+        content: Text('Final anxiety score: $totalScore\nAre you sure?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text("Cancel")),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text("Submit")),
+        ],
+      ),
+    );
+
+    if (!mounted || confirmed != true) return;
+
+    try {
       await FirebaseFirestore.instance
           .collection('patients')
           .doc(widget.patientId)
           .update({
         fieldToUpdate: totalScore,
-        'currentStage': _currentStage! + 1, // Move to the next stage
+        'currentStage': _currentStage! + 1,
       });
 
-      // Navigate back or show success message
-      if (!mounted) return;
-      Navigator.pop(context);
+      if (mounted) Navigator.pop(context);
     } catch (e) {
-      // print('Error saving anxiety score: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Failed to save score. Please try again.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to save. Try again.')),
+        );
+      }
     }
   }
+
+  bool get _allAnswered => !_answers.contains(null);
 
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Anxiety Questionnaire'),
-        ),
-        body: const Center(child: CircularProgressIndicator()),
+        appBar: AppBar(title: Text('Anxiety Questionnaire')),
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -114,68 +122,65 @@ class _AnxietyQuestionnairePageState extends State<AnxietyQuestionnairePage> {
         title: Text('Anxiety Questionnaire (Stage $_currentStage)'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            const Text(
-              'Please rate the following questions based on the patient’s symptoms:',
-              style: TextStyle(fontSize: 18),
+          children: [
+            LinearProgressIndicator(
+              value: _answers.whereType<int>().length / _questions.length,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
                 itemCount: _questions.length,
                 itemBuilder: (context, index) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        _questions[index],
-                        style: const TextStyle(fontSize: 16),
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Q${index + 1}: ${_questions[index]}',
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w500),
+                          ),
+                          ...List.generate(5, (score) {
+                            return RadioListTile<int>(
+                              title: Text(score.toString()),
+                              value: score,
+                              groupValue: _answers[index],
+                              onChanged: (value) {
+                                setState(() {
+                                  _answers[index] = value;
+                                });
+                              },
+                            );
+                          }),
+                        ],
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: List.generate(5, (score) {
-                          return Row(
-                            children: <Widget>[
-                              Radio<int>(
-                                value: score,
-                                groupValue: _answers[index],
-                                onChanged: (value) {
-                                  setState(() {
-                                    _answers[index] = value!;
-                                  });
-                                },
-                              ),
-                              Text('$score'),
-                            ],
-                          );
-                        }),
-                      ),
-                      const SizedBox(height: 10),
-                    ],
+                    ),
                   );
                 },
               ),
             ),
+            const SizedBox(height: 10),
             Text(
-              'Calculated Anxiety Score: ${_answers.reduce((a, b) => a + b)}',
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              'Total Score: ${_answers.whereType<int>().fold(0, (sum, value) => sum + value)}',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _saveAnxietyScore,
-                    child: const Padding(
-                      padding: EdgeInsets.all(12.0),
-                      child: Text('Submit'),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            const SizedBox(height: 10),
+            ElevatedButton.icon(
+              onPressed: _allAnswered ? _saveAnxietyScore : null,
+              icon: const Icon(Icons.check),
+              label: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Text('Submit', style: TextStyle(fontSize: 18)),
+              ),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size.fromHeight(50),
+              ),
+            )
           ],
         ),
       ),
