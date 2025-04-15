@@ -1,27 +1,32 @@
 # Patient Management App
 
-This Flutter application is designed to manage patient data for medical professionals, with a focus on tracking the progress of patients through various evaluation stages, including anxiety assessments and quality of life scores.
+A Flutter application designed for medical professionals to track patient data and progress across various stages of care, with structured evaluations and assessments.
 
-## Features
-- **Patient Management**: Add, view, and edit patient data.
-- **Stage Tracking**: Each patient progresses through different stages of evaluation (Stage 1: Pre-Surgery, Stage 2: Post-Surgery, Stage 3: Quality of Life Assessment).
-- **Anxiety Questionnaire**: Collect and store anxiety scores (before and after surgery).
-- **Editable Patient Data**: Edit patient details (e.g., name, sex, phone number, illness, description).
-- **Navigation**: Navigate between various pages like patient list, details, questionnaires, etc.
+## Key Features
+- **Patient Management**: Add, edit, and view detailed patient records.
+- **Stage Tracking**: Monitor patient progress through:
+  - Stage 1: Pre-Surgery
+  - Stage 2: Post-Surgery
+  - Stage 3: Quality of Life Assessment
+  - Stage 4: Completed
+- **Score Calculation**:
+  - **Anxiety Score**: Automatically calculated based on questionnaire responses (pre- and post-surgery).
+  - **Quality of Life Score**: Stored as a single final value, fetched directly from the form.
+- **Surgery Date Filter**: Quickly filter patients based on their scheduled surgery date,sex and stage.
+- **Search and Ordering**:
+  - Alphabetical sorting of patients.
+  - searching is added.
+- **Stage-Aware Forms**: Automatically fetch current stage from Firestore (no longer passed from navigation).
 
 ## Technologies Used
-- Flutter
-- Dart
-- Firebase (Future integration)
-- Local JSON storage for patient data
+- Flutter & Dart
+- Firebase 
 
-## Features in Progress
-- Integration with Firebase backend
-- User authentication
-- Enhanced data validation
+## Addtional features
+- made dart program for exporting and importing userdata
 
-## Contributing
-If you want to contribute to the development of this app, feel free to fork the repository, create a feature branch, and submit a pull request.
+## Upcoming Features
+- Secure authentication
 
 ## License
 This project is licensed under the MIT License.
